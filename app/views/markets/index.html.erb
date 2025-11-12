@@ -1,0 +1,27 @@
+<% content_for :title, "Markets" %>
+
+<h1 class="text-center"> 🎄 Christmas Markets 🎄 </h1>
+
+<div class="container" id="items">
+  <div class="card-deck">
+    <% @markets.each do |market| %>
+      <div class="card mb-2">
+        <img class="card-img-top"
+             src="https://jadarecipes.com/wp-content/uploads/2025/08/gingerbread-cookie-recipe-1-3.webp"
+             alt="<%= market.name %>">
+
+        <div class="card-body">
+          <h5 class="card-title"><%= market.name %></h5>
+          <p class="card-text"><%= market.description %></p>
+        </div>
+
+        <div class="card-footer d-flex justify-content-between">
+          <small class="text-muted">In stock · €<%= market.price %></small>
+          <%= link_to "Show detail", market%>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+<%# for later%>
+<%= link_to "update csv (Admin only)", new_market_path %>

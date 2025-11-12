@@ -1,0 +1,36 @@
+<div class="container py-4" >
+  <%= link_to "← Back to Main Page", markets_path, class: "d-block mb-5"%>
+
+  <h2 class="mb-4">Product Detail</h1>
+ 
+  <div class="row">
+    <!-- Item Image -->
+    <div class="col-md-5 ">
+      <div style="max-width: 500px;">
+        <img
+          src="<%='https://jadarecipes.com/wp-content/uploads/2025/08/gingerbread-cookie-recipe-1-3.webp' %>"
+          alt="<%= @market.name %>"
+          class="img-fluid"
+        >
+      </div>
+    </div>
+
+    <!-- Details and order -->
+    <div class="col-md-5 offset-md-2">
+      <h3 class="mb-5"><%= @market.name %></h3>
+      <p class="mb-5"><%= @market.description %></p>
+      <p class="mb-2"><%= @market.stock_current%></p>
+        <p class="bold mb-4">
+        <strong><%= number_to_currency(@market.price, unit: "€", separator: ",", precision: 2) %></strong>
+      </p>
+
+    <div>
+      <%= link_to "Edit item", edit_market_path(@market) %> |
+      <%= link_to "Delete item", @market, method: :delete  %>
+      
+    </div>
+
+      </div>
+    </div>
+  </div>
+</div>
