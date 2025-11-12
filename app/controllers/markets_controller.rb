@@ -1,4 +1,5 @@
 class MarketsController < ApplicationController
+    protect_from_forgery with: :exception, unless: -> { request.format.json? }
   before_action :set_market, only: %i[ show edit update destroy ]
 
   # GET /markets or /markets.json
@@ -65,6 +66,6 @@ class MarketsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def market_params
-      params.expect(market: [ :name, :price, :stock, :description ])
+      params.expect(market: [ :name, :description, :price, :stock, :image_url ])
     end
 end

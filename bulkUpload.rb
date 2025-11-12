@@ -4,10 +4,10 @@ require 'net/http'
 require 'uri'
 
 # Rails default port
-API_URL = 'http://127.0.0.1:3000/markets'
+uri = URI('http://127.0.0.1:3000/markets.json')
 
-CSV.foreach('markets.csv', headers: true) do |row|
-  payload = {
+CSV.foreach('items.csv', headers: true) do |row|
+  data = {
     market: {
       name:        row['name'],
       description: row['description'],
@@ -17,14 +17,11 @@ CSV.foreach('markets.csv', headers: true) do |row|
     }
   }
 
-  uri = URI(API_URL)
-  request = Net::HTTP::Post.new(uri)
-  request['Content-Type'] = 'application/json'
-  request.body = payload.to_json
+  http = Net::HTTP.new(uri.host, uri.port)
+  request = Net::HTTP::Post.new(uri.path, { 'Content-Type' => 'application/json' })
+  request.body = data.to_json
 
-  response = Net::HTTP.start(uri.hostname, uri.port) do |http|
-    http.request(request)
-  end
+  response = http.request(request)
 
   puts "[#{response.code}] #{row['name']} => #{response.body}"
 end
