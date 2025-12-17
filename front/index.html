@@ -142,7 +142,7 @@
 
         // get data from server
         function getProducts() {
-            fetch("http://100.49.101.253/markets")
+            fetch(API_URL) 
                 .then(response => {
                     // error check
                     if (!response.ok) {

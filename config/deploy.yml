@@ -7,10 +7,10 @@ image: your-user/christmas_market
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    - 100.49.101.253
   # job:
   #   hosts:
-  #     - 192.168.0.1
+  #     - 100.49.101.253
   #   cmd: bin/jobs
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
