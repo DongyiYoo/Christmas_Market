@@ -1,15 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  name: MyString
-  price: 9.99
-  stock: 1
-  description: MyText
-  image_url: "http://example.com/exx.jpg"
+  name: Mulled Wine
+  price: 7.5
+  stock: 50
+  description: Hot spiced wine
+  image_url: "http://example.com/wine.jpg"
 
 two:
-  name: MyString
-  price: 9.99
-  stock: 1
-  description: MyText
-  image_url: "http://example.com/esd.jpg"
+  name: Christmas Candle
+  price: 12.0
+  stock: 30
+  description: Scented candle
+  image_url: "http://example.com/candle.jpg"

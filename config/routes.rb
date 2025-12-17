@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+root "markets#index"
   resources :markets do
     collection do
       # POST /markets/calculate_discount
