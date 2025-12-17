@@ -1,5 +1,10 @@
 Rails.application.routes.draw do
-  resources :markets
+  resources :markets do
+    collection do
+      # POST /markets/calculate_discount
+      post :calculate_discount
+    end
+  end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.

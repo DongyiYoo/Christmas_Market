@@ -129,7 +129,7 @@
 
     <script>
         // Server URL
-        const API_URL = "http://localhost:3000/markets";
+        const API_URL = "http://100.49.101.253/markets";
         
         let productsData = [];
         let currentProduct = null; // remember the current product
@@ -142,7 +142,7 @@
 
         // get data from server
         function getProducts() {
-            fetch(API_URL)
+            fetch("http://100.49.101.253/markets")
                 .then(response => {
                     // error check
                     if (!response.ok) {

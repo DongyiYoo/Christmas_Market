@@ -164,6 +164,16 @@ GEM
     matrix (0.4.3)
     mini_mime (1.1.5)
     minitest (5.26.1)
+    monetize (2.0.0)
+      money (~> 7.0)
+    money (7.0.2)
+      bigdecimal
+      i18n (~> 1.9)
+    money-rails (2.0.0)
+      activesupport (>= 6.1)
+      monetize (~> 2.0)
+      money (~> 7.0)
+      railties (>= 6.1)
     msgpack (1.8.0)
     net-imap (0.5.12)
       date
@@ -398,6 +408,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kamal
+  money-rails
   propshaft
   puma (>= 5.0)
   rack-cors

@@ -49,4 +49,9 @@ class MarketsController < ApplicationController
     def market_params
       params.require(:market).permit(:name, :description, :price, :stock, :image_url)
     end
+
+    def calculate_discount
+    result = Discount.calculate(params[:cart_items])
+    render json: result
+  end
 end

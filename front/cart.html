@@ -127,10 +127,18 @@
             loadCart(); // reload the list
         }
 
+        // server url
+        const API_URL = "http://100.49.101.253/markets/calculate_discount"; 
+
         // price calculation
-        function updateSummary(cart) {
+        async function updateSummary(cart) {
             // use the library
-            let result = DiscountLib.calculate(cart);
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cart_items: cart })
+            });
+            const result = await response.json();
 
             // result
             document.getElementById('subtotal').innerText = "€" + result.subtotal.toFixed(2);
