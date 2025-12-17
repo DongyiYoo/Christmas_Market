@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Market</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        .market-card {
+            background: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            position: relative;
+        }
+        .market-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .card-img-top {
+            height: 250px;
+            object-fit: cover;
+            width: 100%;
+        }
+        h1 { font-weight: bold; color: black; }
+
+        .btns {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <nav class="navbar navbar-light bg-white border-bottom fixed-top">
+        <div class="container">
+            <span class="navbar-brand fw-bold">🎄 Christmas Market 🎄</span>
+            
+            <a href="cart.html" class="btn btn-outline-dark position-relative">
+                Cart
+                <span id="cartCount" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    0
+                </span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-5 mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">Christmas Special</h1>
+            <button class="btn btn-success" onclick="openCreateModal()">+ Add New Item</button>
+        </div>
+        
+        <div class="text-center mb-5">
+            <strong>Buy 3 items plus to get 10% Discount!</strong>
+        </div>
+
+        <div id="market-list" class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-secondary" role="status"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Product Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="modalImage" src="" class="img-fluid mb-3 w-100" alt="">
+                    <p id="modalDescription" class="text-muted"></p>
+                    <p>Price: <strong id="modalPrice"></strong></p>
+                    <p>Stock: <span id="modalStock"></span></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="addToCart()">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalTitle">Edit Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="mb-3">
+                        <label>Name</label>
+                        <input type="text" id="editName" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Description</label>
+                        <input type="text" id="editDesc" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Price (€)</label>
+                        <input type="number" id="editPrice" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Stock</label>
+                        <input type="number" id="editStock" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Image URL</label>
+                        <input type="text" id="editImage" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveMarket()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Server URL
+        const API_URL = "http://localhost:3000/markets";
+        
+        let productsData = [];
+        let currentProduct = null; // remember the current product
+        let isEditing = false; // check if creating or editing
+
+        document.addEventListener("DOMContentLoaded", () => {
+            getProducts();
+            updateCartCount(); 
+        });
+
+        // get data from server
+        function getProducts() {
+            fetch(API_URL)
+                .then(response => {
+                    // error check
+                    if (!response.ok) {
+                        console.log("Error connecting to backend");
+                        return [];
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    productsData = data; 
+                    const list = document.getElementById("market-list");
+                    list.innerHTML = ""; 
+
+                    if(data.length == 0) {
+                        list.innerHTML = "<p class='text-center'>No items found in Database.</p>";
+                        return;
+                    }
+
+                    data.forEach(market => {
+                        let stockText = `<span class="text-success">In stock: ${market.stock || 0}</span>`;
+                        if (!market.stock || market.stock <= 0) {
+                            stockText = `<span class="text-danger fw-bold">Sold Out</span>`;
+                        }
+
+                        // img
+                        const imageUrl = market.image_url;
+
+                        // create html
+                        const html = `
+                            <div class="col">
+                                <div class="card market-card h-100">
+                                    
+                                    <div class="btns">
+                                        <button class="btn btn-primary btn-sm me-1" onclick="openEditModal(${market.id}, event)">Edit</button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(${market.id}, event)">Delete</button>
+                                    </div>
+
+                                    <div onclick="showDetail(${market.id})">
+                                        <img src="${imageUrl}" class="card-img-top" alt="${market.name}">
+                                        <div class="card-body">
+                                            <h5 class="card-title fw-bold">${market.name}</h5>
+                                            <p class="card-text text-muted text-truncate">${market.description}</p>
+                                        </div>
+                                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center pb-3">
+                                            <div>
+                                                <div class="fw-bold fs-5">€${market.price}</div>
+                                                <small>${stockText}</small>
+                                            </div>
+                                            <button class="btn btn-dark btn-sm rounded-0">View</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        list.innerHTML += html;
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    document.getElementById("market-list").innerHTML = `<div class="alert text-center">Server Error</div>`;
+                });
+        }
+
+        // open modal for new item
+        function openCreateModal() {
+            isEditing = false;
+            document.getElementById('editModalTitle').innerText = "Add New Item";
+            
+            // clear inputs
+            document.getElementById('editId').value = "";
+            document.getElementById('editName').value = "";
+            document.getElementById('editDesc').value = "";
+            document.getElementById('editPrice').value = "";
+            document.getElementById('editStock').value = "";
+            document.getElementById('editImage').value = "";
+
+            new bootstrap.Modal(document.getElementById('editModal')).show();
+        }
+
+        // open edit modal
+        function openEditModal(id, e) {
+            e.stopPropagation(); // stop click event
+            isEditing = true;
+            document.getElementById('editModalTitle').innerText = "Edit Item";
+            
+            // find the clicked product
+            const market = productsData.find(p => p.id === id);
+            
+            // fill values
+            document.getElementById('editId').value = market.id;
+            document.getElementById('editName').value = market.name;
+            document.getElementById('editDesc').value = market.description;
+            document.getElementById('editPrice').value = market.price;
+            document.getElementById('editStock').value = market.stock;
+            document.getElementById('editImage').value = market.image_url;
+
+            // show modal
+            new bootstrap.Modal(document.getElementById('editModal')).show();
+        }
+
+        // create or update item to server
+        function saveMarket() {
+            const id = document.getElementById('editId').value;
+            
+            // data object
+            const marketData = {
+                market: {
+                    name: document.getElementById('editName').value,
+                    description: document.getElementById('editDesc').value,
+                    price: document.getElementById('editPrice').value,
+                    stock: document.getElementById('editStock').value,
+                    image_url: document.getElementById('editImage').value
+                }
+            };
+
+            let method = "POST";
+            let url = API_URL;
+
+            if (isEditing) {
+                method = "PATCH";
+                url = API_URL + "/" + id;
+            }
+
+            // send to server
+            fetch(url, {
+                method: method,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(marketData)
+            })
+            .then(res => {
+                if(res.ok) {
+                    alert("Saved successfully!");
+                    bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+                    getProducts(); // reload list
+                } else {
+                    alert("Failed to save.");
+                }
+            })
+            .catch(err => console.error(err));
+        }
+
+        // delete item from server
+        function deleteProduct(id, event) {
+            event.stopPropagation(); // stop click event
+
+            if(confirm("Are you sure you want to delete this item?")) {
+                fetch(`${API_URL}/${id}`, {
+                    method: "DELETE"
+                })
+                .then(res => {
+                    if(res.ok) { 
+                        alert("Deleted!");
+                        getProducts(); // reload list
+                    } else {
+                        alert("Error deleting.");
+                    }
+                })
+                .catch(err => console.log(err));
+            }
+        }
+
+        // show detail modal
+        function showDetail(id) {
+            const market = productsData.find(p => p.id === id);
+            currentProduct = market;
+
+            document.getElementById('modalTitle').innerText = market.name;
+            document.getElementById('modalDescription').innerText = market.description;
+            document.getElementById('modalPrice').innerText = "€" + market.price;
+        
+            const stockEl = document.getElementById('modalStock');
+            if (market.stock > 0) {
+                stockEl.innerHTML = `<span class="text-success">In Stock (${market.stock})</span>`;
+            } else {
+                stockEl.innerHTML = `<span class="text-danger">Sold Out</span>`;
+            }
+            
+            const imgUrl = market.image_url;
+            document.getElementById('modalImage').src = imgUrl;
+
+            new bootstrap.Modal(document.getElementById('productModal')).show();
+        }
+
+        // add to cart *local storage for cart
+        function addToCart() {
+            if (currentProduct == null) return;
+
+            // get cart from local storage
+            let cart = JSON.parse(localStorage.getItem("myCart") || "[]");
+
+            // check if exists
+            let existing = cart.find(item => item.id === currentProduct.id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({
+                    id: currentProduct.id,
+                    name: currentProduct.name,
+                    price: currentProduct.price,
+                    image_url: currentProduct.image_url,
+                    quantity: 1
+                });
+            }
+
+            // save back
+            localStorage.setItem("myCart", JSON.stringify(cart));
+            updateCartCount();
+            
+            alert("Added to Cart!");
+            bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+        }
+
+        function updateCartCount() {
+            let cart = JSON.parse(localStorage.getItem("myCart") || "[]");
+            let total = 0;
+            cart.forEach(item => total += item.quantity);
+            document.getElementById("cartCount").innerText = total;
+        }
+    </script>
+</body>
+</html>

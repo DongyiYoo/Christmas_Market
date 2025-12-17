@@ -1,71 +1,52 @@
 class MarketsController < ApplicationController
-    protect_from_forgery with: :exception, unless: -> { request.format.json? }
-  before_action :set_market, only: %i[ show edit update destroy ]
+  # 1. API 요청을 위해 보안 토큰 검사 끄기 (연결 에러 해결의 핵심)
+  skip_before_action :verify_authenticity_token
 
-  # GET /markets or /markets.json
+  before_action :set_market, only: %i[ show update destroy ]
+
+  # GET /markets
   def index
     @markets = Market.all
+    render json: @markets
   end
 
-  # GET /markets/1 or /markets/1.json
+  # GET /markets/1
   def show
+    render json: @market
   end
 
-  # GET /markets/new
-  def new
-    @market = Market.new
-  end
-
-  # GET /markets/1/edit
-  def edit
-  end
-
-  # POST /markets or /markets.json
+  # POST /markets
   def create
     @market = Market.new(market_params)
 
-    respond_to do |format|
-      if @market.save
-        format.html { redirect_to @market, notice: "The item was successfully created." }
-        format.json { render :show, status: :created, location: @market }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @market.errors, status: :unprocessable_entity }
-      end
+    if @market.save
+      render json: @market, status: :created
+    else
+      render json: @market.errors, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /markets/1 or /markets/1.json
+  # PATCH/PUT /markets/1
   def update
-    respond_to do |format|
-      if @market.update(market_params)
-        format.html { redirect_to @market, notice: "The item was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @market }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @market.errors, status: :unprocessable_entity }
-      end
+    if @market.update(market_params)
+      render json: @market
+    else
+      render json: @market.errors, status: :unprocessable_entity
     end
   end
 
-  # DELETE /markets/1 or /markets/1.json
+  # DELETE /markets/1
   def destroy
     @market.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to markets_path, notice: "The item was successfully Deleted.", status: :see_other }
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
     def set_market
-      @market = Market.find(params.expect(:id))
+      @market = Market.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
     def market_params
-      params.expect(market: [ :name, :description, :price, :stock, :image_url ])
+      params.require(:market).permit(:name, :description, :price, :stock, :image_url)
     end
 end
