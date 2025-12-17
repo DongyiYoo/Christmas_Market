@@ -1,5 +1,4 @@
 class MarketsController < ApplicationController
-  # 1. API 요청을 위해 보안 토큰 검사 끄기 (연결 에러 해결의 핵심)
   skip_before_action :verify_authenticity_token
 
   before_action :set_market, only: %i[ show update destroy ]
@@ -41,6 +40,11 @@ class MarketsController < ApplicationController
     head :no_content
   end
 
+  def calculate_discount
+    result = Discount.calculate(params[:cart_items])
+    render json: result
+  end
+
   private
     def set_market
       @market = Market.find(params[:id])
@@ -49,9 +53,4 @@ class MarketsController < ApplicationController
     def market_params
       params.require(:market).permit(:name, :description, :price, :stock, :image_url)
     end
-
-    def calculate_discount
-    result = Discount.calculate(params[:cart_items])
-    render json: result
-  end
 end

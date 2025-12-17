@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 
 # Rails default port
-uri = URI('http://127.0.0.1:3000/markets.json')
+uri = URI('http://100.49.101.253/markets.json')
 
 CSV.foreach('items.csv', headers: true) do |row|
   data = {
