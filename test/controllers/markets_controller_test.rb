@@ -6,43 +6,33 @@ class MarketsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should get index" do
-    get markets_url
-    assert_response :success
-  end
-
-  test "should get new" do
-    get new_market_url
+    get markets_url, as: :json
     assert_response :success
   end
 
   test "should create market" do
     assert_difference("Market.count") do
-      post markets_url, params: { market: { description: @market.description, name: @market.name, price: @market.price, stock: @market.stock } }
+      post markets_url, params: { market: { description: @market.description, name: @market.name, price: @market.price, stock: @market.stock } }, as: :json
     end
 
-    assert_redirected_to market_url(Market.last)
+    assert_response :created
   end
 
   test "should show market" do
-    get market_url(@market)
-    assert_response :success
-  end
-
-  test "should get edit" do
-    get edit_market_url(@market)
+    get market_url(@market), as: :json
     assert_response :success
   end
 
   test "should update market" do
-    patch market_url(@market), params: { market: { description: @market.description, name: @market.name, price: @market.price, stock: @market.stock } }
-    assert_redirected_to market_url(@market)
+    patch market_url(@market), params: { market: { description: @market.description, name: @market.name, price: @market.price, stock: @market.stock } }, as: :json
+    assert_response :success
   end
 
   test "should destroy market" do
     assert_difference("Market.count", -1) do
-      delete market_url(@market)
+      delete market_url(@market), as: :json
     end
 
-    assert_redirected_to markets_url
+    assert_response :no_content
   end
 end

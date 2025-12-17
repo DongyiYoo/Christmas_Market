@@ -5,9 +5,11 @@ one:
   price: 9.99
   stock: 1
   description: MyText
+  image_url: "http://example.com/exx.jpg"
 
 two:
   name: MyString
   price: 9.99
   stock: 1
   description: MyText
+  image_url: "http://example.com/esd.jpg"
